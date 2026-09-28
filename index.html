@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UseFirst — Mobile Pantry Coach</title>
+  <style>
+    :root {
+      --color-forest: #1F4D3A;
+      --color-forest-dark: #153729;
+      --color-forest-soft: rgba(31, 77, 58, 0.08);
+      --color-cream: #F6F1E8;
+      --color-cream-card: #ECE6DB;
+      --color-lime: #B8D96C;
+      --color-lime-bg: #EDF5DE;
+      --color-lime-border: rgba(184, 217, 108, 0.65);
+      --color-orange: #F28C45;
+      --color-orange-hover: #DF762E;
+      --color-orange-soft: #FDEFE5;
+      --color-orange-text: #B85010;
+      --color-ink: #193029;
+      --color-ink-muted: #536B63;
+      --color-white: #FFFFFF;
+      --color-border: rgba(25, 48, 41, 0.1);
+      --color-border-subtle: rgba(25, 48, 41, 0.05);
+      --font-display: Georgia, "Times New Roman", Times, serif;
+      --font-ui: Calibri, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    ::selection {
+      background-color: var(--color-lime);
+      color: var(--color-ink);
+    }
+
+    body {
+      background-color: var(--color-cream);
+      color: var(--color-ink);
+      font-family: var(--font-ui);
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ACCESSIBLE FOCUS */
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--color-forest);
+      outline-offset: 2px;
+    }
+
+    /* GLOBAL HEADER */
+    .global-header {
+      background-color: var(--color-cream);
+      border-bottom: 1px solid var(--color-border);
+      padding: 16px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background-color: var(--color-forest);
+      color: var(--color-lime);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      font-family: var(--font-display);
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .brand-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: var(--font-display);
+      color: var(--color-ink);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-tagline {
+      font-size: 12.5px;
+      color: var(--color-ink-muted);
+      font-weight: 500;
+    }
+
+    .prototype-pill {
+      background-color: var(--color-white);
+      border: 1px solid rgba(25, 48, 41, 0.2);
+      color: var(--color-ink);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    /* MAIN CONTAINER - SPLIT SCREEN */
+    .main-layout {
+      flex: 1;
+      max-width: 1240px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 48px 36px 64px;
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    @media (max-width: 992px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+        padding: 24px 20px;
+        gap: 40px;
+      }
+    }
+
+    /* LEFT COLUMN - MOBILE PHONE CHASSIS */
+    .chassis-wrapper {
+      display: flex;
+      justify-content: center;
+      position: sticky;
+      top: 86px;
+    }
+
+    .phone-chassis {
+      width: 100%;
+      max-width: 380px;
+      background: #18221D;
+      border-radius: 48px;
+      padding: 12px;
+      box-shadow: 0 24px 64px -16px rgba(25, 48, 41, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    }
+
+    .phone-inner {
+      background-color: var(--color-cream);
+      border-radius: 38px;
+      height: 680px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    /* PHONE TOP BAR & DYNAMIC ISLAND */
+    .phone-status-bar {
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 22px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-ink-muted);
+      flex-shrink: 0;
+    }
+
+    .dynamic-island {
+      width: 96px;
+      height: 22px;
+      background: #18221D;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      gap: 5px;
+    }
+
+    .lens-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #25332C;
+    }
+
+    /* PHONE TABS */
+    .tab-bar-container {
+      padding: 0 16px 14px;
+      flex-shrink: 0;
+    }
+
+    .segmented-tabs {
+      background-color: rgba(25, 48, 41, 0.06);
+      border-radius: 12px;
+      padding: 3px;
+      display: flex;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border: none;
+      background: transparent;
+      color: var(--color-ink);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-align: center;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: rgba(25, 48, 41, 0.04);
+    }
+
+    .tab-btn.active {
+      background-color: var(--color-forest);
+      color: var(--color-white);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    }
+
+    /* SCREEN VIEWS CONTAINER */
+    .phone-screen-content {
+      padding: 2px 18px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .phone-screen-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    .screen-view {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      animation: fadeIn 0.18s ease;
+    }
+
+    .screen-view.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .screen-header {
+      margin-bottom: 14px;
+      flex-shrink: 0;
+    }
+
+    .screen-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-ink);
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    .screen-subhead {
+      font-size: 13px;
+      color: var(--color-ink-muted);
+      margin-top: 2px;
+    }
+
+    /* SCREEN 1: MY PANTRY QUEUE */
+    .pantry-queue {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex: 1;
+    }
+
+    .empty-pantry-state {
+      background: var(--color-white);
+      border-radius: 14px;
+      padding: 32px 16px;
+      text-align: center;
+      border: 1px dashed var(--color-border);
+      color: var(--color-ink-muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .food-card {
+      background-color: var(--color-white);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 1px 3px rgba(25, 48, 41, 0.03);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .food-card.urgent {
+      border-color: rgba(242, 140, 69, 0.4);
+      background-color: #FFFCF9;
+    }
+
+    .food-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .food-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-ink);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .food-days {
+      font-size: 12px;
+      color: var(--color-ink-muted);
+      font-weight: 500;
+    }
+
+    .urgent-tag {
+      font-size: 10px;
+      font-weight: 700;
+      background-color: var(--color-orange-soft);
+      color: var(--color-orange-text);
+      border: 1px solid rgba(242, 140, 69, 0.25);
+      padding: 1px 6px;
+      border-radius: 5px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .btn-used {
+      background-color: rgba(25, 48, 41, 0.05);
+      color: var(--color-ink);
+      border: 1px solid var(--color-border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-used:hover {
+      background-color: var(--color-forest);
+      color: var(--color-white);
+      border-color: var(--color-forest);
+    }
+
+    .btn-primary-action {
+      background-color: var(--color-forest);
+      color: var(--color-white);
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: auto;
+      transition: background 0.15s ease, transform 0.1s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    .btn-primary-action:hover {
+      background-color: var(--color-forest-dark);
+    }
+
+    /* SCREEN 2: ADD FOOD FORM */
+    .add-food-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--color-white);
+      padding: 20px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 1px 3px rgba(25, 48, 41, 0.03);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-ink);
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: var(--color-ink);
+      background-color: #FAFAF7;
+      outline: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--color-forest);
+      background-color: var(--color-white);
+    }
+
+    .form-footnote {
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--color-ink-muted);
+      line-height: 1.45;
+      font-style: italic;
+      padding: 0 4px;
+    }
+
+    /* SCREEN 3: DYNAMIC COOK NOW */
+    .ingredient-chips-section {
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+
+    .chips-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .ingredient-chips-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip-btn {
+      background-color: var(--color-white);
+      border: 1px solid var(--color-border);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font-ui);
+      color: var(--color-ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--color-forest);
+    }
+
+    .chip-btn.active {
+      background-color: var(--color-forest);
+      color: var(--color-white);
+      border-color: var(--color-forest);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .chip-check {
+      font-size: 11px;
+      display: none;
+    }
+
+    .chip-btn.active .chip-check {
+      display: inline;
+    }
+
+    .cook-recipe-card {
+      background-color: var(--color-lime-bg);
+      border: 1px solid var(--color-lime-border);
+      border-radius: 16px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    .recipe-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .recipe-overline {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      color: var(--color-forest);
+      text-transform: uppercase;
+    }
+
+    .recipe-time-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background-color: rgba(31, 77, 58, 0.08);
+      color: var(--color-forest);
+      padding: 2px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .recipe-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--color-ink);
+      line-height: 1.22;
+      letter-spacing: -0.01em;
+    }
+
+    .recipe-matched-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .recipe-tag {
+      background-color: rgba(31, 77, 58, 0.08);
+      color: var(--color-forest);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+
+    .recipe-step-list {
+      margin: 4px 0 2px 20px;
+      font-size: 12px;
+      color: var(--color-ink);
+      line-height: 1.45;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .recipe-safety-alert {
+      font-size: 11px;
+      color: var(--color-ink-muted);
+      background: rgba(255, 255, 255, 0.65);
+      padding: 8px 10px;
+      border-radius: 8px;
+      line-height: 1.4;
+      border: 1px solid rgba(25, 48, 41, 0.06);
+    }
+
+    .btn-orange-action {
+      background-color: var(--color-orange);
+      color: var(--color-white);
+      border: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.15s ease, transform 0.1s ease;
+      text-align: center;
+      margin-top: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-orange-action:hover {
+      background-color: var(--color-orange-hover);
+    }
+
+    .recipe-staples-box {
+      margin-top: 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 11px;
+      color: var(--color-ink-muted);
+      line-height: 1.4;
+      border: 1px solid var(--color-border-subtle);
+    }
+
+    .empty-cook-state {
+      background: var(--color-white);
+      border-radius: 14px;
+      padding: 28px 16px;
+      text-align: center;
+      border: 1px dashed var(--color-border);
+      color: var(--color-ink-muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* TOAST NOTIFICATION */
+    .undo-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #18221D;
+      color: #FFFFFF;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      animation: toastIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-toast-undo {
+      background-color: var(--color-lime);
+      color: #193029;
+      border: none;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .btn-toast-undo:hover {
+      opacity: 0.9;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translate(-50%, 15px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* RIGHT COLUMN - SHOWCASE & TELEMETRY */
+    .showcase-column {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .hero-header-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--color-forest-soft);
+      color: var(--color-forest);
+      border: 1px solid rgba(31, 77, 58, 0.15);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      align-self: flex-start;
+    }
+
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--color-ink);
+      letter-spacing: -0.02em;
+    }
+
+    @media (max-width: 600px) {
+      .hero-headline {
+        font-size: 28px;
+      }
+    }
+
+    .hero-body {
+      font-size: 16px;
+      color: var(--color-ink-muted);
+      line-height: 1.6;
+      max-width: 640px;
+    }
+
+    /* REAL-TIME TELEMETRY GRID */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 600px) {
+      .telemetry-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background-color: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 18px;
+      padding: 22px 20px;
+      box-shadow: 0 1px 3px rgba(25, 48, 41, 0.04), 0 6px 16px -4px rgba(25, 48, 41, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-number {
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--color-forest);
+      line-height: 1;
+      font-family: var(--font-display);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 6px;
+    }
+
+    .stat-number.urgent-num {
+      color: var(--color-orange);
+    }
+
+    .stat-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--color-ink);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-caption {
+      font-size: 12.5px;
+      color: var(--color-ink-muted);
+      margin-top: 2px;
+    }
+
+    /* PROCESS GUIDE CARDS */
+    .guide-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-ink);
+      letter-spacing: -0.01em;
+    }
+
+    .process-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 768px) {
+      .process-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .step-card {
+      background-color: var(--color-forest);
+      color: var(--color-white);
+      border-radius: 18px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(25, 48, 41, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .step-badge {
+      color: var(--color-lime);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-white);
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.48;
+    }
+
+    .reset-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: var(--color-white);
+      border-radius: 14px;
+      border: 1px solid var(--color-border);
+      font-size: 13px;
+      box-shadow: 0 1px 3px rgba(25, 48, 41, 0.02);
+    }
+
+    .status-indicator-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-forest);
+      border-radius: 50%;
+    }
+
+    .btn-reset {
+      background: transparent;
+      border: 1px solid var(--color-border);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-reset:hover {
+      background-color: var(--color-cream);
+      border-color: var(--color-ink);
+    }
+
+    /* PERSISTENT FOOTER DISCLAIMER */
+    .global-footer {
+      background-color: var(--color-cream);
+      border-top: 1px solid var(--color-border);
+      padding: 22px 36px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-ink-muted);
+      line-height: 1.5;
+    }
+
+    .global-footer strong {
+      color: var(--color-ink);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- GLOBAL FIXED HEADER -->
+  <header class="global-header">
+    <div class="brand-wrap">
+      <div class="brand-logo" aria-hidden="true">U1</div>
+      <div class="brand-titles">
+        <span class="brand-title">UseFirst</span>
+        <span class="brand-tagline">Eat what you have. Waste less.</span>
+      </div>
+    </div>
+    <div class="prototype-pill">Fictional Classroom Prototype</div>
+  </header>
+
+  <!-- SPLIT SCREEN DESKTOP SHOWCASE -->
+  <main class="main-layout">
+
+    <!-- LEFT COLUMN: MOBILE DEVICE CHASSIS -->
+    <section class="chassis-wrapper" aria-label="Mobile Device Simulator">
+      <div class="phone-chassis">
+        <div class="phone-inner">
+
+          <!-- PHONE STATUS BAR WITH DYNAMIC ISLAND -->
+          <div class="phone-status-bar">
+            <span>9:41</span>
+            <div class="dynamic-island" aria-hidden="true">
+              <div class="lens-indicator"></div>
+            </div>
+            <span>5G 100%</span>
+          </div>
+
+          <!-- TAB SWITCHER -->
+          <div class="tab-bar-container">
+            <nav class="segmented-tabs" aria-label="Mobile Screen Navigation">
+              <button type="button" class="tab-btn active" id="tab-pantry" onclick="switchTab('pantry')">Pantry</button>
+              <button type="button" class="tab-btn" id="tab-add" onclick="switchTab('add')">Add</button>
+              <button type="button" class="tab-btn" id="tab-cook" onclick="switchTab('cook')">Cook</button>
+            </nav>
+          </div>
+
+          <!-- PHONE SCREEN CONTAINER -->
+          <div class="phone-screen-content">
+
+            <!-- SCREEN 1: MY PANTRY -->
+            <div class="screen-view active" id="screen-pantry" role="region" aria-label="Pantry List">
+              <div class="screen-header">
+                <h2 class="screen-title">My pantry</h2>
+                <p class="screen-subhead">What should I use first?</p>
+              </div>
+
+              <div class="pantry-queue" id="pantry-queue">
+                <!-- Dynamically rendered sorted items -->
+              </div>
+
+              <button type="button" class="btn-primary-action" id="btn-goto-add" onclick="switchTab('add')">
+                <span>+</span> Add food
+              </button>
+            </div>
+
+            <!-- SCREEN 2: ADD FOOD -->
+            <div class="screen-view" id="screen-add" role="region" aria-label="Add Food Form">
+              <div class="screen-header">
+                <h2 class="screen-title">Add food</h2>
+                <p class="screen-subhead">Fast manual entry</p>
+              </div>
+
+              <form class="add-food-form" id="add-food-form" onsubmit="handleAddItem(event)">
+                <div class="form-group">
+                  <label class="form-label" for="food-name">Food name</label>
+                  <input class="form-input" type="text" id="food-name" placeholder="e.g., Avocado" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="food-days">Days until use-first date</label>
+                  <input class="form-input" type="number" id="food-days" placeholder="e.g., 2" min="0" max="99" required>
+                </div>
+
+                <button type="submit" class="btn-primary-action">
+                  Save item
+                </button>
+              </form>
+
+              <p class="form-footnote">
+                The production idea may support barcode or receipt scanning. This prototype uses a form only.
+              </p>
+            </div>
+
+            <!-- SCREEN 3: COOK NOW (DYNAMIC RECIPE MATCHER) -->
+            <div class="screen-view" id="screen-cook" role="region" aria-label="Cook Now Recommendation">
+              <div class="screen-header">
+                <h2 class="screen-title">Cook now</h2>
+                <p class="screen-subhead">Dynamic meal ideas from your perishables</p>
+              </div>
+
+              <!-- INGREDIENT CHIP SELECTOR -->
+              <div class="ingredient-chips-section">
+                <div class="chips-label">Pair from your pantry (tap to toggle):</div>
+                <div class="ingredient-chips-wrap" id="cook-ingredient-chips">
+                  <!-- Chips rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- DYNAMIC RECIPE CARD CONTAINER -->
+              <div id="recipe-card-container">
+                <!-- Recipe rendered dynamically -->
+              </div>
+
+              <div class="recipe-staples-box">
+                Assumes universal kitchen staples: cooking oil, salt, black pepper, and water. Check ingredient appearance and aroma before preparation.
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: HERO, TELEMETRY & ONBOARDING -->
+    <section class="showcase-column" aria-label="Product Showcase & Telemetry">
+      <div class="hero-header-wrap">
+        <span class="hero-badge">Product Concept</span>
+        <h1 class="hero-headline">Start dinner with what is already at home.</h1>
+        <p class="hero-body">
+          UseFirst prioritizes the nearest date so you cook what matters first. Rather than requiring users to scan dozens of barcodes or audit full pantries, UseFirst tests a lightweight habit: entering 3–5 perishables and receiving an immediate sorted urgency list and simple recipe ideas.
+        </p>
+      </div>
+
+      <!-- REAL-TIME TELEMETRY CARDS -->
+      <div class="telemetry-grid" aria-label="Live Telemetry Counters">
+        <div class="stat-card">
+          <span class="stat-number" id="stat-total">4</span>
+          <span class="stat-label">Total Sample Items</span>
+          <span class="stat-caption">Tracked in priority queue</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-number urgent-num" id="stat-urgent">1</span>
+          <span class="stat-label">Items to Use Soon</span>
+          <span class="stat-caption">Due within &le; 2 days</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-number" id="stat-actions">3</span>
+          <span class="stat-label">Prototype Actions</span>
+          <span class="stat-caption">Pantry, Add & Cook</span>
+        </div>
+      </div>
+
+      <!-- PROCESS GUIDE: HOW THE CONCEPT WORKS -->
+      <div class="guide-section">
+        <h2 class="section-title">How the concept works</h2>
+        <div class="process-cards">
+          <div class="step-card">
+            <span class="step-badge">01 &middot; Add</span>
+            <h3 class="step-title">Capture food</h3>
+            <p class="step-desc">Enter an item and a use-first date without full-pantry inventory overhead.</p>
+          </div>
+
+          <div class="step-card">
+            <span class="step-badge">02 &middot; Prioritize</span>
+            <h3 class="step-title">See what matters</h3>
+            <p class="step-desc">The closest date appears first, with visual urgency cues for items due soon.</p>
+          </div>
+
+          <div class="step-card">
+            <span class="step-badge">03 &middot; Act</span>
+            <h3 class="step-title">Cook or mark used</h3>
+            <p class="step-desc">Choose a dynamic 20-minute recipe idea or clear items in a single tap.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESET & CONTROLS BAR -->
+      <div class="reset-bar">
+        <div class="status-indicator-group">
+          <div class="status-dot"></div>
+          <span>Interactive demonstration state: <strong id="state-status-indicator">4 active items</strong></span>
+        </div>
+        <button type="button" class="btn-reset" onclick="resetSampleData()">Reset Sample Pantry</button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- PERSISTENT FOOTER DISCLAIMER -->
+  <footer class="global-footer">
+    <p>
+      <strong>Scope note:</strong> This is an interactive concept for coursework. It does not scan real barcodes, identify food, calculate verified savings, or provide food-safety advice.
+    </p>
+  </footer>
+
+  <!-- UNDO TOAST NOTIFICATION -->
+  <div class="undo-toast" id="undo-toast" role="status" aria-live="polite">
+    <span id="undo-toast-text">Items marked used</span>
+    <button type="button" class="btn-toast-undo" onclick="handleUndoLastAction()">Undo</button>
+  </div>
+
+  <!-- ZERO-DEPENDENCY REACTIVE CLIENT LOGIC -->
+  <script>
+    // Initial Seed Data per design.md & planning.md specifications
+    const INITIAL_ITEMS = [
+      { id: 'item-1', name: 'Spinach', days: 2 },
+      { id: 'item-2', name: 'Fresh Milk', days: 4 },
+      { id: 'item-3', name: 'Greek Yogurt', days: 6 },
+      { id: 'item-4', name: 'Dry Pasta', days: 12 }
+    ];
+
+    let pantryItems = JSON.parse(JSON.stringify(INITIAL_ITEMS));
+    // Default selection: Spinach, Fresh Milk, and Dry Pasta for flagship recipe
+    let selectedItemIds = ['item-1', 'item-2', 'item-4'];
+    let lastRemovedSnapshot = null;
+    let toastTimeout = null;
+    let currentRenderedRecipe = null;
+
+    // CULINARY CLASSIFICATION DICTIONARY
+    const CULINARY_ROLES = {
+      spinach: 'greens', kale: 'greens', lettuce: 'greens', arugula: 'greens', cabbage: 'greens', herbs: 'greens', chard: 'greens',
+      onion: 'aromatic', garlic: 'aromatic', carrot: 'veg', broccoli: 'veg', pepper: 'veg', bell_pepper: 'veg',
+      mushroom: 'veg', zucchini: 'veg', tomato: 'veg', tomatoes: 'veg', cucumber: 'veg', celery: 'veg', peas: 'veg',
+      milk: 'dairy_liquid', 'fresh milk': 'dairy_liquid', cream: 'dairy_liquid',
+      yogurt: 'dairy_solid', 'greek yogurt': 'dairy_solid', cheese: 'dairy_solid', butter: 'dairy_solid',
+      pasta: 'starch', 'dry pasta': 'starch', rice: 'starch', bread: 'starch', potato: 'starch', potatoes: 'starch', noodles: 'starch', oats: 'starch',
+      eggs: 'protein', egg: 'protein', tofu: 'protein', chicken: 'protein', beef: 'protein', beans: 'protein', fish: 'protein', tuna: 'protein',
+      berries: 'fruit', apple: 'fruit', banana: 'fruit', avocado: 'rich_fruit', lemon: 'fruit', orange: 'fruit'
+    };
+
+    function classifyItem(name) {
+      const clean = name.toLowerCase().trim();
+      for (const [key, role] of Object.entries(CULINARY_ROLES)) {
+        if (clean.includes(key)) return role;
+      }
+      return 'veg';
+    }
+
+    // COMBINATORIAL RECIPE ENGINE (STRICT AGENT.MD COMPLIANCE + REFINED CULINARY ACCURACY)
+    function generateRecipe(items) {
+      if (!items || items.length === 0) return null;
+
+      const roles = items.map(i => classifyItem(i.name));
+      const names = items.map(i => i.name);
+      const namesStr = names.join(', ');
+
+      const hasRole = (role) => roles.includes(role);
+      const getItemByRole = (role) => {
+        const idx = roles.indexOf(role);
+        return idx !== -1 ? names[idx] : names[0];
+      };
+
+      const safetyReminder = "Check ingredient appearance and aroma before preparation. Follow package guidelines.";
+      const staples = ["cooking oil", "salt", "black pepper", "water"];
+
+      // Template 1: Greens + Dairy (Liquid or Solid) + Starch (e.g., Spinach + Milk + Pasta)
+      if (hasRole('greens') && (hasRole('dairy_liquid') || hasRole('dairy_solid')) && hasRole('starch')) {
+        const greens = getItemByRole('greens');
+        const dairy = hasRole('dairy_liquid') ? getItemByRole('dairy_liquid') : getItemByRole('dairy_solid');
+        const starch = getItemByRole('starch');
+        return {
+          recipe_title: `Creamy ${greens} & ${starch} Toss`,
+          prep_time_minutes: 15,
+          matched_items: names,
+          pantry_staples_assumed: staples,
+          instructions: [
+            `Bring water to a boil with salt; cook ${starch} until tender (8–10 mins).`,
+            `Heat 1 tbsp cooking oil in a skillet; add ${greens} and wilt gently for 2 minutes.`,
+            `Reduce heat to low, stir in ${dairy}, and season with salt and cracked black pepper to form a rich sauce.`,
+            `Drain ${starch}, toss directly in the skillet to coat thoroughly, and serve warm immediately.`
+          ],
+          safety_reminder: safetyReminder
+        };
+      }
+
+      // Template 2: Protein (Eggs/Tofu/Chicken) + Any Veg/Greens
+      if (hasRole('protein') && (hasRole('veg') || hasRole('greens') || hasRole('aromatic'))) {
+        const protein = getItemByRole('protein');
+        const vegNames = names.filter(n => classifyItem(n) !== 'protein').join(' and ');
+        return {
+          recipe_title: `Quick ${protein} & ${vegNames} Scramble`,
+          prep_time_minutes: 12,
+          matched_items: names,
+          pantry_staples_assumed: staples,
+          instructions: [
+            `Warm 1 tbsp cooking oil in a nonstick pan over medium heat.`,
+            `Add ${vegNames} with a pinch of salt and pepper; sauté for 3-4 minutes until tender.`,
+            `Add ${protein} directly to the pan; fold gently until cooked through.`,
+            `Remove from heat and serve hot with fresh black pepper.`
+          ],
+          safety_reminder: safetyReminder
+        };
+      }
+
+      // Template 3: Dairy + Fruit / Oats / Grains
+      if ((hasRole('dairy_solid') || hasRole('dairy_liquid')) && (hasRole('fruit') || hasRole('rich_fruit') || hasRole('starch'))) {
+        const dairy = hasRole('dairy_solid') ? getItemByRole('dairy_solid') : getItemByRole('dairy_liquid');
+        const otherItems = names.filter(n => !classifyItem(n).startsWith('dairy')).join(' and ');
+        return {
+          recipe_title: `Fresh ${otherItems} & ${dairy} Parfait`,
+          prep_time_minutes: 6,
+          matched_items: names,
+          pantry_staples_assumed: staples,
+          instructions: [
+            `Spoon or pour ${dairy} into a bowl as a cooling base.`,
+            `Chop or slice ${otherItems} into neat portions.`,
+            `Layer together, finish with a light pinch of cinnamon or coarse black pepper if savory, and serve.`
+          ],
+          safety_reminder: safetyReminder
+        };
+      }
+
+      // Template 4: Starch + Vegetables / Greens
+      if (hasRole('starch') && (hasRole('veg') || hasRole('greens') || hasRole('aromatic'))) {
+        const starch = getItemByRole('starch');
+        const vegItems = names.filter(n => classifyItem(n) !== 'starch').join(' and ');
+        return {
+          recipe_title: `Savory ${vegItems} & ${starch} Sauté Bowl`,
+          prep_time_minutes: 14,
+          matched_items: names,
+          pantry_staples_assumed: staples,
+          instructions: [
+            `Heat 1 tbsp oil in a wide pan over medium-high heat.`,
+            `Add ${vegItems} and sauté with salt and pepper for 4 minutes until tender-crisp.`,
+            `Add ${starch} (cooked or warmed) and toss together vigorously.`,
+            `Add 2 tbsp water to steam for 1 minute, blend flavors, and serve hot.`
+          ],
+          safety_reminder: safetyReminder
+        };
+      }
+
+      // Template 5: 2+ Vegetables or Greens
+      if (names.length >= 2 && (hasRole('veg') || hasRole('greens') || hasRole('aromatic'))) {
+        return {
+          recipe_title: `Rustic Pan-Roasted ${namesStr} Skillet`,
+          prep_time_minutes: 10,
+          matched_items: names,
+          pantry_staples_assumed: staples,
+          instructions: [
+            `Slice ${namesStr} into uniform, bite-sized pieces.`,
+            `Warm 1 tbsp cooking oil in a skillet over medium-high heat.`,
+            `Add items and season generously with salt and coarse black pepper.`,
+            `Sauté for 4-5 minutes until tender-crisp and lightly caramelized.`
+          ],
+          safety_reminder: safetyReminder
+        };
+      }
+
+      // Specialized Single-Item Preparations (culinarily accurate!)
+      if (names.length === 1) {
+        const single = names[0];
+        const role = roles[0];
+
+        if (role === 'dairy_liquid') {
+          return {
+            recipe_title: `Comfort Spiced Warm ${single}`,
+            prep_time_minutes: 5,
+            matched_items: [single],
+            pantry_staples_assumed: staples,
+            instructions: [
+              `Pour ${single} into a small saucepan over low heat.`,
+              `Add a tiny pinch of salt and black pepper (or warm pantry spice).`,
+              `Warm gently for 3-4 minutes without boiling; serve as a soothing culinary tonic or base.`
+            ],
+            safety_reminder: safetyReminder
+          };
+        }
+
+        if (role === 'dairy_solid') {
+          return {
+            recipe_title: `Herbed Olive Oil ${single} Dip`,
+            prep_time_minutes: 4,
+            matched_items: [single],
+            pantry_staples_assumed: staples,
+            instructions: [
+              `Spoon ${single} into a shallow dish.`,
+              `Drizzle 1 tsp cooking oil over the surface.`,
+              `Season with salt and freshly cracked black pepper for a savory pantry spread.`
+            ],
+            safety_reminder: safetyReminder
+          };
+        }
+
+        if (role === 'greens') {
+          return {
+            recipe_title: `Quick Sautéed Garlic-Herb ${single}`,
+            prep_time_minutes: 6,
+            matched_items: [single],
+            pantry_staples_assumed: staples,
+            instructions: [
+              `Warm 1 tbsp cooking oil in a skillet over medium heat.`,
+              `Add ${single} with salt and black pepper.`,
+              `Toss for 2 minutes until tender and vibrant green; serve warm immediately.`
+            ],
+            safety_reminder: safetyReminder
+          };
+        }
+
+        if (role === 'starch') {
+          return {
+            recipe_title: `Classic Pantry ${single} Aglio e Olio`,
+            prep_time_minutes: 12,
+            matched_items: [single],
+            pantry_staples_assumed: staples,
+            instructions: [
+              `Cook ${single} in salted boiling water until tender.`,
+              `Warm 1 tbsp cooking oil in a pan with black pepper.`,
+              `Toss drained ${single} with 2 tbsp of the starchy cooking water to glaze.`
+            ],
+            safety_reminder: safetyReminder
+          };
+        }
+      }
+
+      // Universal Fallback Template for Multi-Item Combinations
+      return {
+        recipe_title: `Chef's Quick ${namesStr} Medley`,
+        prep_time_minutes: 12,
+        matched_items: names,
+        pantry_staples_assumed: staples,
+        instructions: [
+          `Prepare ${namesStr} into clean, ready-to-cook portions.`,
+          `Warm 1 tbsp cooking oil in a pan over medium heat with salt and black pepper.`,
+          `Add solid ingredients first to soften; finish with tender or liquid elements.`,
+          `Serve hot as a practical, zero-waste pantry meal.`
+        ],
+        safety_reminder: safetyReminder
+      };
+    }
+
+    // Tab Switching Logic
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.screen-view').forEach(screen => screen.classList.remove('active'));
+
+      const activeBtn = document.getElementById('tab-' + tabName);
+      const activeScreen = document.getElementById('screen-' + tabName);
+
+      if (activeBtn) activeBtn.classList.add('active');
+      if (activeScreen) activeScreen.classList.add('active');
+
+      if (tabName === 'cook') {
+        renderCookScreen();
+      }
+    }
+
+    // Render Pantry Priority Queue and Live Telemetry
+    function render() {
+      // Sort ascending by days remaining (closest date first)
+      pantryItems.sort((a, b) => a.days - b.days);
+
+      // Clean selectedItemIds of any removed items
+      const existingIds = new Set(pantryItems.map(i => i.id));
+      selectedItemIds = selectedItemIds.filter(id => existingIds.has(id));
+
+      // If selection is empty but pantry has items, auto-select top 2-3 items
+      if (selectedItemIds.length === 0 && pantryItems.length > 0) {
+        selectedItemIds = pantryItems.slice(0, Math.min(3, pantryItems.length)).map(i => i.id);
+      }
+
+      const queueContainer = document.getElementById('pantry-queue');
+      queueContainer.innerHTML = '';
+
+      if (pantryItems.length === 0) {
+        queueContainer.innerHTML = `
+          <div class="empty-pantry-state">
+            No items in queue.<br>Tap "Add food" to track a perishable item.
+          </div>
+        `;
+      } else {
+        pantryItems.forEach(item => {
+          const isUrgent = item.days <= 2;
+          const card = document.createElement('div');
+          card.className = `food-card ${isUrgent ? 'urgent' : ''}`;
+          card.innerHTML = `
+            <div class="food-info">
+              <span class="food-name">
+                ${escapeHtml(item.name)}
+                ${isUrgent ? '<span class="urgent-tag">Use first</span>' : ''}
+              </span>
+              <span class="food-days">${item.days} ${item.days === 1 ? 'day' : 'days'} remaining</span>
+            </div>
+            <button type="button" class="btn-used" aria-label="Mark ${escapeHtml(item.name)} as used" onclick="handleMarkUsed('${item.id}')">
+              Used
+            </button>
+          `;
+          queueContainer.appendChild(card);
+        });
+      }
+
+      // Update Live Telemetry
+      const totalCount = pantryItems.length;
+      const urgentCount = pantryItems.filter(i => i.days <= 2).length;
+
+      document.getElementById('stat-total').textContent = totalCount;
+      document.getElementById('stat-urgent').textContent = urgentCount;
+      document.getElementById('state-status-indicator').textContent = `${totalCount} active ${totalCount === 1 ? 'item' : 'items'}`;
+
+      // Update Cook Screen
+      renderCookScreen();
+    }
+
+    // Render Dynamic Cook Screen
+    function renderCookScreen() {
+      const chipsContainer = document.getElementById('cook-ingredient-chips');
+      const recipeContainer = document.getElementById('recipe-card-container');
+      if (!chipsContainer || !recipeContainer) return;
+
+      chipsContainer.innerHTML = '';
+
+      if (pantryItems.length === 0) {
+        chipsContainer.innerHTML = '<span style="font-size: 12px; color: var(--color-ink-muted);">Pantry is empty.</span>';
+        recipeContainer.innerHTML = `
+          <div class="empty-cook-state">
+            No perishable food available.<br>Add items in the <strong>Add</strong> tab to generate meal ideas.
+          </div>
+        `;
+        currentRenderedRecipe = null;
+        return;
+      }
+
+      // Render Chips
+      pantryItems.forEach(item => {
+        const isSelected = selectedItemIds.includes(item.id);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `chip-btn ${isSelected ? 'active' : ''}`;
+        btn.innerHTML = `<span class="chip-check" aria-hidden="true">&#10003;</span> ${escapeHtml(item.name)}`;
+        btn.onclick = () => toggleItemSelection(item.id);
+        chipsContainer.appendChild(btn);
+      });
+
+      // Filter selected items
+      const selectedItems = pantryItems.filter(i => selectedItemIds.includes(i.id));
+
+      if (selectedItems.length === 0) {
+        recipeContainer.innerHTML = `
+          <div class="empty-cook-state">
+            Tap at least one ingredient chip above to generate a 20-minute recipe.
+          </div>
+        `;
+        currentRenderedRecipe = null;
+        return;
+      }
+
+      // Generate Recipe
+      const recipe = generateRecipe(selectedItems);
+      currentRenderedRecipe = recipe;
+
+      const stepsHtml = recipe.instructions.map((step) => `
+        <li class="recipe-step-item">${escapeHtml(step)}</li>
+      `).join('');
+
+      const tagsHtml = recipe.matched_items.map(name => `
+        <span class="recipe-tag">${escapeHtml(name)}</span>
+      `).join('');
+
+      recipeContainer.innerHTML = `
+        <div class="cook-recipe-card">
+          <div class="recipe-header-row">
+            <span class="recipe-overline">Cook First</span>
+            <span class="recipe-time-badge">&le; ${recipe.prep_time_minutes} mins</span>
+          </div>
+
+          <h3 class="recipe-title">${escapeHtml(recipe.recipe_title)}</h3>
+
+          <div class="recipe-matched-wrap">
+            ${tagsHtml}
+          </div>
+
+          <ol class="recipe-step-list">
+            ${stepsHtml}
+          </ol>
+
+          <div class="recipe-safety-alert">
+            ${escapeHtml(recipe.safety_reminder)}
+          </div>
+
+          <button type="button" class="btn-orange-action" id="btn-batch-used" onclick="handleBatchMarkUsed()">
+            Mark ${recipe.matched_items.length} ${recipe.matched_items.length === 1 ? 'item' : 'items'} used
+          </button>
+        </div>
+      `;
+    }
+
+    // Toggle Chip Selection
+    function toggleItemSelection(itemId) {
+      if (selectedItemIds.includes(itemId)) {
+        selectedItemIds = selectedItemIds.filter(id => id !== itemId);
+      } else {
+        if (selectedItemIds.length >= 4) {
+          // Keep max 4 ingredients per AGENT.md guidelines (2 to 4 items)
+          selectedItemIds.shift();
+        }
+        selectedItemIds.push(itemId);
+      }
+      renderCookScreen();
+    }
+
+    // Handlers
+    function handleMarkUsed(itemId) {
+      pantryItems = pantryItems.filter(i => i.id !== itemId);
+      render();
+    }
+
+    function handleAddItem(event) {
+      event.preventDefault();
+      const nameInput = document.getElementById('food-name');
+      const daysInput = document.getElementById('food-days');
+
+      const name = nameInput.value.trim();
+      const days = parseInt(daysInput.value, 10);
+
+      if (!name || isNaN(days)) return;
+
+      const newItem = {
+        id: 'item-' + Date.now(),
+        name: name,
+        days: Math.max(0, days)
+      };
+
+      pantryItems.push(newItem);
+      nameInput.value = '';
+      daysInput.value = '';
+
+      render();
+      switchTab('pantry');
+    }
+
+    // Batch Mark Used with Undo Toast
+    function handleBatchMarkUsed() {
+      if (!currentRenderedRecipe) return;
+
+      const matchedNames = new Set(currentRenderedRecipe.matched_items.map(n => n.toLowerCase()));
+      const itemsToRemove = pantryItems.filter(i => matchedNames.has(i.name.toLowerCase()));
+
+      if (itemsToRemove.length === 0) return;
+
+      // Save Snapshot for Undo
+      lastRemovedSnapshot = {
+        items: JSON.parse(JSON.stringify(itemsToRemove)),
+        previousSelected: [...selectedItemIds]
+      };
+
+      const removeIds = new Set(itemsToRemove.map(i => i.id));
+      pantryItems = pantryItems.filter(i => !removeIds.has(i.id));
+      selectedItemIds = [];
+
+      render();
+
+      // Show Undo Toast
+      showUndoToast(`${itemsToRemove.length} ${itemsToRemove.length === 1 ? 'item' : 'items'} marked used.`);
+    }
+
+    function showUndoToast(msg) {
+      const toast = document.getElementById('undo-toast');
+      const text = document.getElementById('undo-toast-text');
+      if (!toast || !text) return;
+
+      text.textContent = msg;
+      toast.style.display = 'flex';
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.style.display = 'none';
+      }, 5000);
+    }
+
+    function handleUndoLastAction() {
+      if (!lastRemovedSnapshot) return;
+
+      // Restore items back
+      pantryItems.push(...lastRemovedSnapshot.items);
+      selectedItemIds = [...lastRemovedSnapshot.previousSelected];
+      lastRemovedSnapshot = null;
+
+      const toast = document.getElementById('undo-toast');
+      if (toast) toast.style.display = 'none';
+      if (toastTimeout) clearTimeout(toastTimeout);
+
+      render();
+    }
+
+    function resetSampleData() {
+      pantryItems = JSON.parse(JSON.stringify(INITIAL_ITEMS));
+      selectedItemIds = ['item-1', 'item-2', 'item-4'];
+      lastRemovedSnapshot = null;
+      const toast = document.getElementById('undo-toast');
+      if (toast) toast.style.display = 'none';
+      render();
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // Initial Execution
+    document.addEventListener('DOMContentLoaded', () => {
+      render();
+    });
+  </script>
+</body>
+</html>
